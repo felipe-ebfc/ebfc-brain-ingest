@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.ebfc.brain-watcher</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Volumes/Osito2T/Projects/ebfc-brain-ingest/scripts/inbox-watcher.py</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>SUPABASE_URL</key>
+        <string>https://otoywcdcndvpuekvenhv.supabase.co</string>
+        <key>SUPABASE_SERVICE_KEY</key>
+        <string>YOUR_SUPABASE_SERVICE_KEY_HERE</string>
+        <key>OLLAMA_URL</key>
+        <string>http://localhost:11434</string>
+        <key>EMBED_MODEL</key>
+        <string>nomic-embed-text</string>
+        <key>POLL_INTERVAL</key>
+        <string>10</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/brain-watcher.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/brain-watcher.err</string>
+</dict>
+</plist>
