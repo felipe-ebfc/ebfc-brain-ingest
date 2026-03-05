@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Open Brain Ingester — EBFC AI Knowledge Pipeline",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18"
   },
