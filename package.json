@@ -1,0 +1,12 @@
+{
+  "name": "ebfc-brain-ingest",
+  "version": "1.0.0",
+  "description": "Open Brain Ingester — EBFC AI Knowledge Pipeline",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}

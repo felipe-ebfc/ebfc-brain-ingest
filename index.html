@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🧠 Open Brain Inbox — EBFC AI</title>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --bg:        #0D0D0F;
+      --surface:   #131318;
+      --surface2:  #1a1a22;
+      --surface3:  #20202b;
+      --navy:      #004AAD;
+      --navy-dim:  #003580;
+      --navy-glow: rgba(0,74,173,0.25);
+      --gold:      #D4A827;
+      --gold-dim:  #b8901f;
+      --gold-glow: rgba(212,168,39,0.2);
+      --border:    rgba(255,255,255,0.07);
+      --border-hi: rgba(255,255,255,0.14);
+      --text:      #F0F2F7;
+      --text-dim:  #8890A4;
+      --success:   #22c55e;
+      --error:     #ef4444;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 7px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ════════════════════════════════════
+       HEADER
+    ════════════════════════════════════ */
+    header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 28px;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo-hex {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 0 18px var(--gold-glow);
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 1px;
+      letter-spacing: 0.3px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      border-radius: 20px;
+      padding: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .mode-btn {
+      padding: 4px 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .mode-btn.active-local {
+      background: var(--navy);
+      color: #fff;
+    }
+    .mode-btn.active-cloud {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+      color: #00204f;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      transition: all 0.3s;
+    }
+    .status-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.3s;
+    }
+    .status-pill.online .dot  { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-pill.online       { border-color: rgba(34,197,94,0.25); color: #86efac; }
+    .status-pill.offline .dot { background: var(--error); }
+    .status-pill.offline      { border-color: rgba(239,68,68,0.25); color: #fca5a5; }
+
+    .ebfc-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* ════════════════════════════════════
+       BOARD (3-column Kanban)
+    ════════════════════════════════════ */
+    .board {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .tile {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 14px;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+    .tile:last-child { border-right: none; }
+
+    .tile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .tile-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: var(--text-dim);
+    }
+    .tile-label .icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .icon-navy   { background: var(--navy-glow); }
+    .icon-gold   { background: var(--gold-glow); }
+    .icon-purple { background: rgba(139,92,246,0.15); }
+
+    /* ════════════════════════════════════
+       LEFT TILE — DROP ZONE
+    ════════════════════════════════════ */
+    #drop-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--border-hi);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      text-align: center;
+      gap: 0;
+      padding: 20px;
+      min-height: 0;
+    }
+    #drop-zone:hover {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+    }
+    #drop-zone.drag-over {
+      border-color: var(--gold);
+      background: rgba(212,168,39,0.1);
+      transform: scale(1.01);
+      box-shadow: 0 0 40px rgba(212,168,39,0.12);
+    }
+    #drop-zone .dz-icon {
+      font-size: 48px;
+      margin-bottom: 14px;
+      opacity: 0.6;
+      transition: all 0.25s;
+    }
+    #drop-zone:hover .dz-icon,
+    #drop-zone.drag-over .dz-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    .dz-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .dz-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .dz-types {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+    .dz-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      letter-spacing: 0.3px;
+    }
+    #file-input { display: none; }
+
+    /* File list inside drop zone */
+    #file-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 14px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .file-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,74,173,0.18);
+      border: 1px solid rgba(0,74,173,0.35);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-size: 12px;
+      color: #93c5fd;
+      text-align: left;
+    }
+    .file-tag .ft-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-tag .ft-size { color: var(--text-dim); font-size: 10px; flex-shrink: 0; }
+    .file-tag .ft-remove { cursor: pointer; color: var(--text-dim); font-size: 14px; line-height: 1; flex-shrink: 0; }
+    .file-tag .ft-remove:hover { color: var(--error); }
+
+    /* ════════════════════════════════════
+       CENTER TILE — PASTE & SUBMIT
+    ════════════════════════════════════ */
+    .center-tile {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .field-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px var(--navy-glow);
+    }
+    input[type="text"]::placeholder,
+    textarea::placeholder { color: var(--text-dim); opacity: 0.6; }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238890A4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    select option { background: var(--surface3); }
+
+    #text-input {
+      flex: 1;
+      resize: none;
+      min-height: 0;
+      line-height: 1.6;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Ingest button */
+    #ingest-btn {
+      flex-shrink: 0;
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+      color: #00204f;
+      font-size: 14px;
+      font-weight: 800;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      text-transform: uppercase;
+    }
+    #ingest-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(212,168,39,0.4);
+    }
+    #ingest-btn:active:not(:disabled) { transform: translateY(0); }
+    #ingest-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,32,79,0.3);
+      border-top-color: #00204f;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Response toast */
+    #response-box {
+      display: none;
+      flex-shrink: 0;
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      border: 1px solid;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    #response-box.success {
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.25);
+      color: #86efac;
+    }
+    #response-box.error {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.25);
+      color: #fca5a5;
+    }
+    .resp-title { font-weight: 700; margin-bottom: 3px; }
+
+    /* Mode banner */
+    #mode-banner {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 11.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid;
+    }
+    #mode-banner.cloud-mode {
+      background: rgba(212,168,39,0.07);
+      border-color: rgba(212,168,39,0.2);
+      color: #fde68a;
+    }
+    #mode-banner.local-mode {
+      background: rgba(0,74,173,0.1);
+      border-color: rgba(0,74,173,0.3);
+      color: #93c5fd;
+    }
+
+    /* ════════════════════════════════════
+       RIGHT TILE — RECENT INGESTIONS
+    ════════════════════════════════════ */
+    #recent-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-height: 0;
+    }
+    #recent-list::-webkit-scrollbar { width: 4px; }
+    #recent-list::-webkit-scrollbar-track { background: transparent; }
+    #recent-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+    .recent-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .recent-item:hover { border-color: var(--border-hi); }
+    .ri-icon { font-size: 20px; flex-shrink: 0; }
+    .ri-body { flex: 1; min-width: 0; }
+    .ri-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ri-time { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; }
+    .ri-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+    .ri-badge.pending    { background: rgba(212,168,39,0.15); color: var(--gold); }
+    .ri-badge.processing { background: rgba(0,74,173,0.15);   color: #93c5fd; }
+    .ri-badge.processed  { background: rgba(34,197,94,0.12);  color: #86efac; }
+    .ri-badge.error      { background: rgba(239,68,68,0.12);  color: #fca5a5; }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 13px;
+      gap: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .empty-state .empty-icon { font-size: 32px; opacity: 0.3; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .stat-num { font-size: 22px; font-weight: 800; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 10px; color: var(--text-dim); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Refresh btn */
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 4px 8px;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .board { grid-template-columns: 1fr 1.1fr 1fr; }
+      .tile { padding: 16px; }
+    }
+    @media (max-width: 860px) {
+      html, body { overflow: auto; }
+      .board {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+        overflow: visible;
+      }
+      .tile { border-right: none; border-bottom: 1px solid var(--border); min-height: 340px; }
+      .tile:last-child { border-bottom: none; }
+      #text-input { min-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="logo-hex">🧠</div>
+    <div>
+      <div class="header-title">Open Brain Inbox</div>
+      <div class="header-sub">EBFC AI Knowledge Ingester</div>
+    </div>
+    <div class="header-right">
+      <!-- Local / Cloud mode toggle -->
+      <div class="mode-toggle" id="mode-toggle" title="Toggle ingestion target">
+        <button class="mode-btn" id="btn-local" onclick="setMode('local')">⚡ Local</button>
+        <button class="mode-btn" id="btn-cloud" onclick="setMode('cloud')">☁️ Cloud</button>
+      </div>
+      <div class="status-pill" id="status-pill">
+        <div class="dot"></div>
+        <span id="status-text">Connecting…</span>
+      </div>
+      <span class="ebfc-badge">EBFC AI</span>
+    </div>
+  </header>
+
+  <!-- ── BOARD ── -->
+  <div class="board">
+
+    <!-- ════ LEFT TILE: Drop Zone ════ -->
+    <div class="tile">
+      <div class="tile-header">
+        <div class="tile-label">
+          <div class="icon icon-navy">📂</div>
+          Drop Zone
+        </div>
+      </div>
+
+      <div id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" aria-label="Drop files or click to browse">
+        <div class="dz-icon">⬇️</div>
+        <div class="dz-title">Drop Files Here</div>
+        <div class="dz-sub">Drag &amp; drop files, or click to browse</div>
+        <div class="dz-types">
+          <span class="dz-tag">PDF</span>
+          <span class="dz-tag">DOCX</span>
+          <span class="dz-tag">PPTX</span>
+          <span class="dz-tag">TXT</span>
+          <span class="dz-tag">MP3</span>
+          <span class="dz-tag">MP4</span>
+          <span class="dz-tag">PNG</span>
+          <span class="dz-tag">JPG</span>
+        </div>
+        <div id="file-list"></div>
+        <input type="file" id="file-input" multiple />
+      </div>
+    </div>
+
+    <!-- ════ CENTER TILE: Paste & Submit ════ -->
+    <div class="tile center-tile">
+      <div class="tile-header">
+        <div class="tile-label">
+          <div class="icon icon-gold">✏️</div>
+          Paste &amp; Submit
+        </div>
+      </div>
+
+      <!-- Mode banner -->
+      <div id="mode-banner" class="cloud-mode">
+        <span id="mode-banner-icon">☁️</span>
+        <span id="mode-banner-text">Cloud Mode — submitting to Vercel API → Supabase inbox</span>
+      </div>
+
+      <!-- URL input -->
+      <div class="field-group">
+        <div class="field-label">🔗 URL / YouTube Link</div>
+        <input type="text" id="url-input" placeholder="https://youtube.com/watch?v=… or any URL" />
+      </div>
+
+      <!-- Text area — flex-grows to fill remaining space -->
+      <div class="field-group" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+        <div class="field-label">📝 Paste Text or Notes</div>
+        <textarea id="text-input" placeholder="Paste any text, notes, article content, meeting notes, ideas…"></textarea>
+      </div>
+
+      <!-- Metadata -->
+      <div class="meta-row">
+        <div class="field-group">
+          <div class="field-label">Source / Context</div>
+          <input type="text" id="source-input" placeholder="Meeting, Research, Book…" />
+        </div>
+        <div class="field-group">
+          <div class="field-label">Category</div>
+          <select id="category-input">
+            <option value="">Auto-detect</option>
+            <option value="research">Research</option>
+            <option value="meeting">Meeting Notes</option>
+            <option value="idea">Idea / Brainstorm</option>
+            <option value="reference">Reference</option>
+            <option value="task">Task / Action Item</option>
+            <option value="resource">Resource / Tool</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Response toast -->
+      <div id="response-box"></div>
+
+      <!-- Ingest button -->
+      <button id="ingest-btn" onclick="submitIngest()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-label">⬡ &nbsp;Ingest to Brain</span>
+      </button>
+    </div>
+
+    <!-- ════ RIGHT TILE: Recent Ingestions ════ -->
+    <div class="tile">
+      <div class="tile-header">
+        <div class="tile-label">
+          <div class="icon icon-purple">🕐</div>
+          Recent Ingestions
+        </div>
+        <button class="icon-btn" onclick="loadRecent()" title="Refresh">↻</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-pending">—</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div id="recent-list">
+        <div class="empty-state">
+          <div class="empty-icon">🧠</div>
+          <div>Loading ingestions…</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.board -->
+
+  <script>
+    // ── Server endpoints ──────────────────────────────────────────
+    const LOCAL_SERVER  = 'http://localhost:7788';
+    const CLOUD_SERVER  = '';  // Same origin (Vercel serves /api/*)
+
+    let currentMode = 'cloud'; // 'local' | 'cloud'
+    let selectedFiles = [];
+
+    // ── Auto-detect mode from hostname ────────────────────────────
+    function detectMode() {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) {
+        return 'local';
+      }
+      return 'cloud';
+    }
+
+    function getServer() {
+      return currentMode === 'local' ? LOCAL_SERVER : CLOUD_SERVER;
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const btnLocal  = document.getElementById('btn-local');
+      const btnCloud  = document.getElementById('btn-cloud');
+      const banner    = document.getElementById('mode-banner');
+      const bannerTxt = document.getElementById('mode-banner-text');
+      const bannerIcon= document.getElementById('mode-banner-icon');
+
+      btnLocal.className = 'mode-btn' + (mode === 'local' ? ' active-local' : '');
+      btnCloud.className = 'mode-btn' + (mode === 'cloud' ? ' active-cloud' : '');
+
+      if (mode === 'cloud') {
+        banner.className  = 'cloud-mode';
+        bannerIcon.textContent = '☁️';
+        bannerTxt.textContent  = 'Cloud Mode — submitting to Vercel API → Supabase inbox';
+      } else {
+        banner.className  = 'local-mode';
+        bannerIcon.textContent = '⚡';
+        bannerTxt.textContent  = 'Local Mode — submitting to Mac Mini server (port 7788)';
+      }
+
+      checkServer();
+      loadRecent();
+    }
+
+    /* ── Server health ── */
+    async function checkServer() {
+      try {
+        const url = getServer() + '/api/health';
+        const r   = await fetch(url, { signal: AbortSignal.timeout(4000) });
+        const data = await r.json();
+        setStatus(true, data.message || (currentMode === 'cloud' ? 'Cloud API online' : 'Local server online'));
+      } catch {
+        if (currentMode === 'cloud') {
+          setStatus(false, 'Cloud API unreachable');
+        } else {
+          setStatus(false, 'Offline — run server.py');
+        }
+      }
+    }
+
+    function setStatus(online, msg) {
+      const pill = document.getElementById('status-pill');
+      pill.className = 'status-pill ' + (online ? 'online' : 'offline');
+      document.getElementById('status-text').textContent = msg;
+    }
+
+    /* ── Drop Zone ── */
+    const dropZone  = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', e => {
+      if (!dropZone.contains(e.relatedTarget)) dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      addFiles([...e.dataTransfer.files]);
+    });
+    fileInput.addEventListener('change', () => {
+      addFiles([...fileInput.files]);
+      fileInput.value = '';
+    });
+
+    function addFiles(files) {
+      files.forEach(f => {
+        if (!selectedFiles.find(x => x.name === f.name && x.size === f.size))
+          selectedFiles.push(f);
+      });
+      renderFileList();
+    }
+
+    function renderFileList() {
+      const list = document.getElementById('file-list');
+      if (!selectedFiles.length) { list.innerHTML = ''; return; }
+      list.onclick = e => e.stopPropagation();
+      list.innerHTML = selectedFiles.map((f, i) => `
+        <div class="file-tag">
+          <span>${fileIcon(f.name)}</span>
+          <span class="ft-name">${f.name}</span>
+          <span class="ft-size">${fmtSize(f.size)}</span>
+          <span class="ft-remove" onclick="removeFile(${i})">✕</span>
+        </div>`).join('');
+    }
+
+    function removeFile(i) { selectedFiles.splice(i, 1); renderFileList(); }
+
+    function fileIcon(name) {
+      const ext = name.split('.').pop().toLowerCase();
+      const m = { pdf:'📄', docx:'📝', doc:'📝', pptx:'📊', ppt:'📊',
+                  xlsx:'📊', xls:'📊', txt:'📃', md:'📃',
+                  mp3:'🎵', wav:'🎵', m4a:'🎵',
+                  mp4:'🎬', mov:'🎬',
+                  png:'🖼️', jpg:'🖼️', jpeg:'🖼️', gif:'🖼️', webp:'🖼️' };
+      return m[ext] || '📎';
+    }
+    function fmtSize(b) {
+      if (b < 1024) return b + 'B';
+      if (b < 1048576) return (b/1024).toFixed(1) + 'KB';
+      return (b/1048576).toFixed(1) + 'MB';
+    }
+
+    /* ── Read file as text ─────────────────────────────────────── */
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = e => resolve(e.target.result);
+        reader.onerror = reject;
+        // Text files: read as text; others: read first 4KB as preview
+        const textTypes = ['text/', 'application/json', 'application/xml'];
+        const isText = textTypes.some(t => file.type.startsWith(t))
+                    || ['txt','md','csv','json','xml','html'].includes(file.name.split('.').pop().toLowerCase());
+        if (isText) reader.readAsText(file);
+        else        reader.readAsDataURL(file); // base64 for binary
+      });
+    }
+
+    /* ── Submit ── */
+    async function submitIngest() {
+      const url      = document.getElementById('url-input').value.trim();
+      const text     = document.getElementById('text-input').value.trim();
+      const source   = document.getElementById('source-input').value.trim();
+      const category = document.getElementById('category-input').value;
+
+      if (!url && !text && selectedFiles.length === 0) {
+        showResponse('error', '⚠️ Nothing to ingest', 'Provide a URL, paste text, or drop files first.');
+        return;
+      }
+
+      setLoading(true);
+      hideResponse();
+
+      try {
+        let result;
+
+        if (currentMode === 'local') {
+          // ── Local mode: send FormData to localhost:7788 ──────────
+          const fd = new FormData();
+          if (url)      fd.append('url', url);
+          if (text)     fd.append('text', text);
+          if (source)   fd.append('source', source);
+          if (category) fd.append('category', category);
+          selectedFiles.forEach(f => fd.append('files', f));
+
+          const r = await fetch(LOCAL_SERVER + '/ingest', { method: 'POST', body: fd });
+          result  = await r.json();
+        } else {
+          // ── Cloud mode: send JSON to Vercel API ──────────────────
+          const filesData = [];
+          for (const f of selectedFiles) {
+            const content = await readFileAsText(f);
+            const isText  = typeof content === 'string' && !content.startsWith('data:');
+            filesData.push({
+              name:          f.name,
+              type:          f.type,
+              content_text:  isText ? content.slice(0, 50000) : null, // cap at 50K chars
+              content_preview: isText ? content.slice(0, 200) : `[Binary file: ${f.name}]`,
+            });
+          }
+
+          const r = await fetch('/api/ingest', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, url, source, category, files: filesData }),
+          });
+          result = await r.json();
+        }
+
+        if (result.ok) {
+          showResponse('success', '✅ Ingested!', result.message || 'Content saved to Brain.');
+          document.getElementById('url-input').value      = '';
+          document.getElementById('text-input').value     = '';
+          document.getElementById('source-input').value   = '';
+          document.getElementById('category-input').value = '';
+          selectedFiles = [];
+          renderFileList();
+          setTimeout(loadRecent, 800);
+        } else {
+          showResponse('error', '❌ Error', result.error || 'Unknown error from server.');
+        }
+      } catch (err) {
+        const target = currentMode === 'local' ? 'Make sure server.py is running on port 7788.' : 'Vercel API unreachable — check deployment.';
+        showResponse('error', '❌ Server unreachable', target);
+        console.error(err);
+      }
+
+      setLoading(false);
+    }
+
+    function setLoading(on) {
+      const btn = document.getElementById('ingest-btn');
+      btn.disabled = on;
+      document.getElementById('spinner').style.display = on ? 'block' : 'none';
+      document.getElementById('btn-label').innerHTML   = on
+        ? 'Ingesting…'
+        : '⬡ &nbsp;Ingest to Brain';
+    }
+
+    function showResponse(type, title, msg) {
+      const box = document.getElementById('response-box');
+      box.className     = type;
+      box.style.display = 'block';
+      box.innerHTML     = `<div class="resp-title">${title}</div><div>${msg}</div>`;
+    }
+    function hideResponse() {
+      document.getElementById('response-box').style.display = 'none';
+    }
+
+    /* ── Recent ingests ── */
+    async function loadRecent() {
+      try {
+        const base = currentMode === 'local' ? LOCAL_SERVER : '';
+        const r    = await fetch(base + '/api/recent', { signal: AbortSignal.timeout(4000) });
+        const data = await r.json();
+
+        document.getElementById('stat-total').textContent   = data.total   ?? '—';
+        document.getElementById('stat-pending').textContent = data.pending  ?? '—';
+
+        renderRecent(data.items || []);
+      } catch {
+        document.getElementById('recent-list').innerHTML =
+          '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Could not load — server offline?</div></div>';
+        document.getElementById('stat-total').textContent   = '—';
+        document.getElementById('stat-pending').textContent = '—';
+      }
+    }
+
+    function renderRecent(items) {
+      const list = document.getElementById('recent-list');
+      if (!items.length) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">🧠</div><div>No ingestions yet — feed the brain!</div></div>';
+        return;
+      }
+      list.innerHTML = items.slice(0, 25).map(it => `
+        <div class="recent-item">
+          <span class="ri-icon">${it.icon || '📎'}</span>
+          <div class="ri-body">
+            <div class="ri-name">${it.name}</div>
+            <div class="ri-time">${it.time}</div>
+          </div>
+          <span class="ri-badge ${it.status || 'pending'}">${it.status || 'pending'}</span>
+        </div>`).join('');
+    }
+
+    /* ── Init ── */
+    const autoMode = detectMode();
+    setMode(autoMode); // sets UI + fetches
+    setInterval(checkServer, 20000);
+    setInterval(loadRecent, 30000);
+  </script>
+</body>
+</html>
