@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Get Your AI Companion — EBFC AI</title>
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --bg:        #0D0D0F;
+      --surface:   #131318;
+      --surface2:  #1a1a22;
+      --navy:      #004AAD;
+      --navy-glow: rgba(0,74,173,0.25);
+      --gold:      #D4A827;
+      --gold-glow: rgba(212,168,39,0.2);
+      --border:    rgba(255,255,255,0.07);
+      --text:      #F0F2F7;
+      --text-dim:  #8890A4;
+      --success:   #22c55e;
+      --error:     #ef4444;
+      --radius:    14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px 80px;
+    }
+
+    /* Glow blobs */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,74,173,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 90%, rgba(212,168,39,0.07) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 540px;
+    }
+
+    /* ── Header ── */
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .logo-hex {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--gold) 0%, #b8901f 100%);
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 22px var(--gold-glow);
+    }
+    .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+    .logo-text p  { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .hero-title span { color: var(--gold); }
+    .hero-sub {
+      font-size: 0.925rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    /* ── Form card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    /* ── Fieldsets ── */
+    fieldset { border: none; margin-bottom: 0; }
+
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+    label .req { color: var(--gold); margin-left: 2px; }
+
+    input[type=text],
+    input[type=email],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+    input[type=text]:focus,
+    input[type=email]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px var(--navy-glow);
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238890A4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    select option { background: #1a1a22; }
+
+    /* Two-column grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 420px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--navy) 0%, #003580 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 4px 20px rgba(0,74,173,0.4);
+      margin-top: 8px;
+    }
+    .btn-submit:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Status banner ── */
+    .banner {
+      display: none;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .banner.success {
+      display: block;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--success);
+    }
+    .banner.error {
+      display: block;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: var(--error);
+    }
+    .banner strong { display: block; font-size: 0.95rem; margin-bottom: 4px; }
+
+    /* ── Success state ── */
+    .success-card {
+      display: none;
+      text-align: center;
+      padding: 40px 28px;
+    }
+    .success-icon { font-size: 3.5rem; margin-bottom: 20px; }
+    .success-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .success-card p  { color: var(--text-dim); line-height: 1.6; }
+    .eta {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 0.85rem;
+      color: var(--gold);
+      font-weight: 600;
+      margin-top: 18px;
+    }
+
+    /* ── Footer ── */
+    .foot {
+      position: relative; z-index: 1;
+      font-size: 0.7rem;
+      color: #444;
+      text-align: center;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 36px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Logo -->
+  <div class="logo-row">
+    <div class="logo-hex">🏗️</div>
+    <div class="logo-text">
+      <h1>EBFC AI</h1>
+      <p>AI Companion for Construction Professionals</p>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <h2 class="hero-title">Your own AI companion,<br><span>ready in minutes.</span></h2>
+  <p class="hero-sub">Tell us a little about yourself. We'll pre-load your AI with field knowledge for your role, set up your workspace, and send you a link to start.</p>
+
+  <!-- Error/success banners -->
+  <div class="banner" id="banner"></div>
+
+  <!-- Form -->
+  <form id="intakeForm">
+
+    <!-- You -->
+    <div class="card">
+      <div class="card-title">01 — About You</div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="name">Full Name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Jane Smith" required autocomplete="name"/>
+        </div>
+        <div class="field">
+          <label for="email">Work Email <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="jane@company.com" required autocomplete="email"/>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="role">Your Role</label>
+          <input type="text" id="role" name="role" placeholder="Project Manager, Superintendent…"/>
+        </div>
+        <div class="field">
+          <label for="domain">Industry Focus</label>
+          <select id="domain" name="domain">
+            <option value="construction">🏗️ Construction</option>
+            <option value="engineering">⚙️ Engineering</option>
+            <option value="tech">💻 Technology</option>
+            <option value="business">📊 Business</option>
+            <option value="education">📚 Education</option>
+            <option value="creative">🎨 Creative</option>
+            <option value="science">🔬 Science</option>
+            <option value="other">🌐 Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="timezone">Timezone</label>
+          <select id="timezone" name="timezone">
+            <option value="America/Los_Angeles">Pacific (LA)</option>
+            <option value="America/Denver">Mountain (Denver)</option>
+            <option value="America/Chicago">Central (Chicago)</option>
+            <option value="America/New_York">Eastern (New York)</option>
+            <option value="America/Phoenix">Arizona</option>
+            <option value="Pacific/Honolulu">Hawaii</option>
+            <option value="America/Anchorage">Alaska</option>
+            <option value="Europe/London">London</option>
+            <option value="Europe/Paris">Paris / Berlin</option>
+            <option value="Asia/Tokyo">Tokyo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="language">Preferred Language</label>
+          <select id="language" name="language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="pt">Português</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI companion -->
+    <div class="card">
+      <div class="card-title">02 — Your AI Companion</div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="ai_name">Name Your Companion <span class="req">*</span></label>
+          <input type="text" id="ai_name" name="ai_name" placeholder="e.g. Max, Scout, Alex…" required/>
+        </div>
+        <div class="field">
+          <label for="ai_vibe">Personality Vibe</label>
+          <input type="text" id="ai_vibe" name="ai_vibe" placeholder="Direct, warm, no-nonsense…"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context -->
+    <div class="card">
+      <div class="card-title">03 — Work Context (optional but powerful)</div>
+
+      <div class="field">
+        <label for="goals">What are your biggest work goals right now?</label>
+        <textarea id="goals" name="goals" placeholder="Deliver X project on time, grow the team, hit budget…"></textarea>
+      </div>
+      <div class="field">
+        <label for="priorities">Top 3 priorities this quarter</label>
+        <textarea id="priorities" name="priorities" placeholder="Safety, schedule, cost…"></textarea>
+      </div>
+      <div class="field">
+        <label for="friction">What slows you down most?</label>
+        <textarea id="friction" name="friction" placeholder="RFI delays, coordination, too many meetings…"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">
+      Set Up My AI Companion →
+    </button>
+
+  </form>
+
+  <!-- Success state (shown after form) -->
+  <div class="card success-card" id="successCard">
+    <div class="success-icon">🎉</div>
+    <h2>You're in the queue!</h2>
+    <p id="successMsg">Your AI companion is being provisioned right now. We'll email you the link once it's ready.</p>
+    <div class="eta" id="etaBadge">Estimated wait: ~5 minutes</div>
+  </div>
+
+</div>
+
+<p class="foot">EBFC AI · Confidential Beta · <span id="yr"></span></p>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // ── API endpoint ────────────────────────────────────────────────────────────
+  // Change this to your deployed Vercel domain if needed.
+  const API_URL = 'https://ebfc-brain-ingest.vercel.app/api/provision';
+
+  const form       = document.getElementById('intakeForm');
+  const submitBtn  = document.getElementById('submitBtn');
+  const banner     = document.getElementById('banner');
+  const successCard = document.getElementById('successCard');
+
+  function showBanner(type, title, body) {
+    banner.className = `banner ${type}`;
+    banner.innerHTML = `<strong>${title}</strong>${body || ''}`;
+    banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearBanner() {
+    banner.className = 'banner';
+    banner.innerHTML = '';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearBanner();
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    // Trim all strings
+    Object.keys(data).forEach(k => {
+      if (typeof data[k] === 'string') data[k] = data[k].trim();
+    });
+
+    // Client-side guard
+    if (!data.email || !data.name || !data.ai_name) {
+      showBanner('error', 'Missing fields', 'Please fill in Name, Email, and Companion Name.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Setting up your companion…';
+
+    try {
+      const res = await fetch(API_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (res.status === 409) {
+        // Duplicate — already in system
+        showBanner('error', 'Already registered!', ` ${json.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Set Up My AI Companion →';
+        return;
+      }
+
+      if (!json.ok) {
+        const msg = json.error || (json.errors && json.errors.join(', ')) || 'Unknown error';
+        showBanner('error', 'Something went wrong', ` ${msg}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Set Up My AI Companion →';
+        return;
+      }
+
+      // Success!
+      form.style.display = 'none';
+      clearBanner();
+      document.getElementById('successMsg').textContent =
+        json.message || `Your AI companion is being set up. We'll email you when it's ready.`;
+      document.getElementById('etaBadge').textContent =
+        `Estimated wait: ~${json.est_minutes || 5} minutes`;
+      successCard.style.display = 'block';
+      successCard.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+      showBanner('error', 'Network error', ` Could not reach the server. Please try again.`);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Set Up My AI Companion →';
+    }
+  });
+</script>
+</body>
+</html>
