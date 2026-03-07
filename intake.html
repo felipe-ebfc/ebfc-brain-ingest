@@ -220,6 +220,110 @@
       margin-top: 18px;
     }
 
+    /* ── Progress bar ── */
+    .progress-wrap {
+      margin-top: 22px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%);
+      border-radius: 99px;
+      transition: width 1s linear;
+    }
+    .countdown {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown strong {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    /* ── Onboarding prompts card ── */
+    .onboarding-card {
+      display: none;
+      text-align: left;
+      padding: 36px 28px;
+    }
+    .onboarding-card .ob-icon { font-size: 3rem; text-align: center; margin-bottom: 16px; }
+    .onboarding-card h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .ob-sub {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .ob-section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .ob-prompts {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .ob-prompts li {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+    .ob-prompts li:hover { border-color: rgba(0,74,173,0.5); }
+    .ob-prompts li::before { content: '› '; color: var(--gold); font-weight: 700; }
+    .btn-chat {
+      width: 100%;
+      padding: 13px 24px;
+      background: linear-gradient(135deg, var(--gold) 0%, #b8901f 100%);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: opacity 0.15s;
+      box-shadow: 0 4px 20px var(--gold-glow);
+    }
+    .btn-chat:hover { opacity: 0.88; }
+
+    /* ── Custom industry reveal ── */
+    .other-industry-wrap {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease;
+    }
+    .other-industry-wrap.visible {
+      max-height: 80px;
+      opacity: 1;
+      margin-top: 14px;
+    }
+
     /* ── Footer ── */
     .foot {
       position: relative; z-index: 1;
@@ -287,6 +391,14 @@
             <option value="science">🔬 Science</option>
             <option value="other">🌐 Other</option>
           </select>
+        </div>
+      </div>
+
+      <!-- Custom industry (shown when 'Other' is selected) -->
+      <div class="other-industry-wrap" id="otherIndustryWrap">
+        <div class="field" style="margin-bottom:0">
+          <label for="custom_industry">Tell us your field — we'll customize your experience</label>
+          <input type="text" id="custom_industry" name="custom_industry" placeholder="e.g. Real estate, Logistics, Healthcare…"/>
         </div>
       </div>
 
@@ -365,6 +477,20 @@
     <h2>You're in the queue!</h2>
     <p id="successMsg">Your AI companion is being provisioned right now. We'll email you the link once it's ready.</p>
     <div class="eta" id="etaBadge">Estimated wait: ~5 minutes</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="countdown" id="countdownDisplay">Time remaining: <strong id="countdownTimer">5:00</strong></div>
+  </div>
+
+  <!-- Onboarding prompts (shown when countdown completes) -->
+  <div class="card onboarding-card" id="onboardingCard">
+    <div class="ob-icon">✨</div>
+    <h3 id="obTitle">Your companion is ready!</h3>
+    <p class="ob-sub" id="obSub">Check your email for your chat link. Here's a preview of what you can do:</p>
+    <div class="ob-section-label" id="obLabel">Try asking your companion:</div>
+    <ul class="ob-prompts" id="obPrompts"></ul>
+    <button class="btn-chat" onclick="window.location.reload()">Set up another companion →</button>
   </div>
 
 </div>
@@ -375,14 +501,80 @@
   document.getElementById('yr').textContent = new Date().getFullYear();
 
   // ── API endpoint ────────────────────────────────────────────────────────────
-  // Change this to your deployed Vercel domain if needed.
   const API_URL = 'https://ebfc-brain-ingest.vercel.app/api/provision';
 
-  const form       = document.getElementById('intakeForm');
-  const submitBtn  = document.getElementById('submitBtn');
-  const banner     = document.getElementById('banner');
-  const successCard = document.getElementById('successCard');
+  const form          = document.getElementById('intakeForm');
+  const submitBtn     = document.getElementById('submitBtn');
+  const banner        = document.getElementById('banner');
+  const successCard   = document.getElementById('successCard');
+  const onboardingCard = document.getElementById('onboardingCard');
 
+  // ── Industry-specific onboarding prompts ────────────────────────────────────
+  const INDUSTRY_PROMPTS = {
+    construction: [
+      'What do I know about pull planning?',
+      'What did we discuss about PPC tracking?',
+      'Find anything about variance analysis',
+      'What is the latest in my brain?',
+    ],
+    engineering: [
+      'What do I know about load calculations?',
+      'What did we discuss about the permit timeline?',
+      'Find anything about code compliance',
+      'What is the latest in my brain?',
+    ],
+    tech: [
+      'What do I know about our sprint velocity?',
+      'What did we discuss about the deployment pipeline?',
+      'Find anything about technical debt',
+      'What is the latest in my brain?',
+    ],
+    business: [
+      'What do I know about our pipeline metrics?',
+      'What did we discuss about quarterly goals?',
+      'Find anything about stakeholder alignment',
+      'What is the latest in my brain?',
+    ],
+    education: [
+      'What do I know about curriculum design?',
+      'What did we discuss about learning outcomes?',
+      'Find anything about student engagement',
+      'What is the latest in my brain?',
+    ],
+    creative: [
+      'What do I know about brand guidelines?',
+      'What did we discuss about the content calendar?',
+      'Find anything about audience engagement',
+      'What is the latest in my brain?',
+    ],
+    science: [
+      'What do I know about our research methodology?',
+      'What did we discuss about data analysis?',
+      'Find anything about hypothesis testing',
+      'What is the latest in my brain?',
+    ],
+    other: [
+      'What do I know about my top priorities?',
+      'What did we discuss about recent decisions?',
+      'Find anything about my key goals',
+      'What is the latest in my brain?',
+    ],
+  };
+
+  // ── Other industry reveal ────────────────────────────────────────────────────
+  const domainSelect       = document.getElementById('domain');
+  const otherIndustryWrap  = document.getElementById('otherIndustryWrap');
+
+  domainSelect.addEventListener('change', () => {
+    if (domainSelect.value === 'other') {
+      otherIndustryWrap.classList.add('visible');
+    } else {
+      otherIndustryWrap.classList.remove('visible');
+      document.getElementById('custom_industry').value = '';
+    }
+  });
+
+  // ── Banner helpers ───────────────────────────────────────────────────────────
   function showBanner(type, title, body) {
     banner.className = `banner ${type}`;
     banner.innerHTML = `<strong>${title}</strong>${body || ''}`;
@@ -394,18 +586,79 @@
     banner.innerHTML = '';
   }
 
+  // ── Countdown + progress bar ─────────────────────────────────────────────────
+  function startCountdown(minutes, aiName, industry, customIndustry) {
+    const totalSeconds = minutes * 60;
+    let remaining = totalSeconds;
+
+    const progressFill    = document.getElementById('progressFill');
+    const countdownTimer  = document.getElementById('countdownTimer');
+    const countdownDisplay = document.getElementById('countdownDisplay');
+
+    function tick() {
+      const pct = ((totalSeconds - remaining) / totalSeconds) * 100;
+      progressFill.style.width = pct + '%';
+
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      countdownTimer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+
+      if (remaining <= 0) {
+        progressFill.style.width = '100%';
+        countdownDisplay.innerHTML = 'Provisioning complete! <strong>✓</strong>';
+        showOnboarding(aiName, industry, customIndustry);
+        return;
+      }
+      remaining--;
+      setTimeout(tick, 1000);
+    }
+
+    tick();
+  }
+
+  // ── Onboarding prompts overlay ───────────────────────────────────────────────
+  function showOnboarding(aiName, industry, customIndustry) {
+    const name = aiName || 'your companion';
+    let prompts;
+    if (industry === 'other' && customIndustry && customIndustry.trim()) {
+      const field = customIndustry.trim();
+      prompts = [
+        `What do I know about ${field}?`,
+        `What did we discuss about ${field} challenges?`,
+        `Find anything about ${field} best practices`,
+        'What is the latest in my brain?',
+      ];
+    } else {
+      prompts = INDUSTRY_PROMPTS[industry] || INDUSTRY_PROMPTS.other;
+    }
+
+    document.getElementById('obTitle').textContent = `${name} is ready!`;
+    document.getElementById('obLabel').textContent = `Try asking ${name}:`;
+
+    const list = document.getElementById('obPrompts');
+    list.innerHTML = '';
+    prompts.forEach(p => {
+      const li = document.createElement('li');
+      li.textContent = p;
+      list.appendChild(li);
+    });
+
+    successCard.style.display = 'none';
+    onboardingCard.style.display = 'block';
+    onboardingCard.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Form submit ──────────────────────────────────────────────────────────────
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearBanner();
 
     const data = Object.fromEntries(new FormData(form).entries());
 
-    // Trim all strings
     Object.keys(data).forEach(k => {
       if (typeof data[k] === 'string') data[k] = data[k].trim();
     });
 
-    // Client-side guard
     if (!data.email || !data.name || !data.ai_name) {
       showBanner('error', 'Missing fields', 'Please fill in Name, Email, and Companion Name.');
       return;
@@ -424,7 +677,6 @@
       const json = await res.json();
 
       if (res.status === 409) {
-        // Duplicate — already in system
         showBanner('error', 'Already registered!', ` ${json.message}`);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Set Up My AI Companion →';
@@ -439,15 +691,20 @@
         return;
       }
 
-      // Success!
+      // Success — show queue screen then start countdown
+      const estMinutes = json.est_minutes || 5;
       form.style.display = 'none';
       clearBanner();
       document.getElementById('successMsg').textContent =
         json.message || `Your AI companion is being set up. We'll email you when it's ready.`;
       document.getElementById('etaBadge').textContent =
-        `Estimated wait: ~${json.est_minutes || 5} minutes`;
+        `Estimated wait: ~${estMinutes} minute${estMinutes !== 1 ? 's' : ''}`;
+      document.getElementById('countdownTimer').textContent =
+        `${estMinutes}:00`;
       successCard.style.display = 'block';
       successCard.scrollIntoView({ behavior: 'smooth' });
+
+      startCountdown(estMinutes, data.ai_name, data.domain, data.custom_industry);
 
     } catch (err) {
       showBanner('error', 'Network error', ` Could not reach the server. Please try again.`);
