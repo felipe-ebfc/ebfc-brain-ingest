@@ -16,7 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL     = process.env.SUPABASE_URL;
 const SUPABASE_KEY     = process.env.SUPABASE_SERVICE_KEY;
 
-const VALID_DOMAINS  = ['construction','business','creative','science','engineering','education','tech','other'];
+const VALID_DOMAINS  = ['construction','business','creative','science','engineering','education','technology','general'];
 const REQUIRED_FIELDS = ['email', 'name', 'ai_name'];
 
 // Estimated provisioning time in minutes (shown to user)
@@ -42,7 +42,7 @@ function validateIntake(raw) {
   }
 
   // Domain normalisation (not required — defaults to 'other')
-  const domain = VALID_DOMAINS.includes(raw.domain) ? raw.domain : 'other';
+  const domain = VALID_DOMAINS.includes(raw.domain) ? raw.domain : 'general';
 
   if (errors.length > 0) return { ok: false, errors };
 
