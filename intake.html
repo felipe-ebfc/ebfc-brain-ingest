@@ -12,8 +12,9 @@
       --surface2:  #1a1a22;
       --navy:      #004AAD;
       --navy-glow: rgba(0,74,173,0.25);
-      --gold:      #D4A827;
-      --gold-glow: rgba(212,168,39,0.2);
+      --blue:      #2563EB;
+      --blue-dim:  #1d4ed8;
+      --blue-glow: rgba(37,99,235,0.2);
       --border:    rgba(255,255,255,0.07);
       --text:      #F0F2F7;
       --text-dim:  #8890A4;
@@ -41,7 +42,7 @@
       pointer-events: none;
       background:
         radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,74,173,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 80% 90%, rgba(212,168,39,0.07) 0%, transparent 50%);
+        radial-gradient(ellipse 40% 30% at 80% 90%, rgba(37,99,235,0.07) 0%, transparent 50%);
       z-index: 0;
     }
 
@@ -62,14 +63,13 @@
     }
     .logo-hex {
       width: 42px; height: 42px;
-      background: linear-gradient(135deg, var(--gold) 0%, #b8901f 100%);
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dim) 100%);
       border-radius: 11px;
       display: flex; align-items: center; justify-content: center;
       font-size: 22px;
-      box-shadow: 0 0 22px var(--gold-glow);
+      box-shadow: 0 0 22px var(--blue-glow);
     }
-    .logo-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
-    .logo-text p  { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .logo-text p { font-size: 12px; color: var(--text-dim); }
 
     .hero-title {
       font-size: 2rem;
@@ -78,13 +78,14 @@
       line-height: 1.2;
       margin-bottom: 10px;
     }
-    .hero-title span { color: var(--gold); }
+    .hero-title span { color: var(--blue); }
     .hero-sub {
       font-size: 0.925rem;
       color: var(--text-dim);
       line-height: 1.6;
       margin-bottom: 36px;
     }
+    #hero-domain { color: var(--blue); font-weight: 600; }
 
     /* ── Form card ── */
     .card {
@@ -103,7 +104,6 @@
       margin-bottom: 20px;
     }
 
-    /* ── Fieldsets ── */
     fieldset { border: none; margin-bottom: 0; }
 
     .field { margin-bottom: 18px; }
@@ -117,7 +117,17 @@
       margin-bottom: 6px;
       letter-spacing: 0.01em;
     }
-    label .req { color: var(--gold); margin-left: 2px; }
+    label .req { color: var(--blue); margin-left: 2px; }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .field-hint::before { content: 'ⓘ'; color: var(--blue); }
 
     input[type=text],
     input[type=email],
@@ -199,55 +209,36 @@
     }
     .banner strong { display: block; font-size: 0.95rem; margin-bottom: 4px; }
 
-    /* ── Success state ── */
+    /* ── Success / 3-step confirmation ── */
     .success-card {
       display: none;
-      text-align: center;
-      padding: 40px 28px;
+      padding: 36px 28px;
     }
-    .success-icon { font-size: 3.5rem; margin-bottom: 20px; }
-    .success-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-    .success-card p  { color: var(--text-dim); line-height: 1.6; }
-    .eta {
-      display: inline-block;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 20px;
-      font-size: 0.85rem;
-      color: var(--gold);
-      font-weight: 600;
-      margin-top: 18px;
-    }
+    .success-icon { font-size: 3.5rem; text-align: center; margin-bottom: 20px; }
+    .success-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+    .success-msg { color: var(--text-dim); line-height: 1.6; text-align: center; margin-bottom: 28px; }
 
-    /* ── Progress bar ── */
-    .progress-wrap {
-      margin-top: 22px;
-      background: var(--surface2);
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 0; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 10px;
       border: 1px solid var(--border);
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
+      background: var(--surface2);
     }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%);
-      border-radius: 99px;
-      transition: width 1s linear;
-    }
-    .countdown {
-      margin-top: 12px;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      font-variant-numeric: tabular-nums;
-    }
-    .countdown strong {
-      color: var(--gold);
-      font-size: 1rem;
-    }
+    .step.done   { border-color: rgba(34,197,94,0.3); }
+    .step.active { border-color: rgba(37,99,235,0.4); background: rgba(37,99,235,0.07); }
+    .step.pending { opacity: 0.45; }
+    .step-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+    .step-body { flex: 1; }
+    .step-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+    .step-desc  { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+    .step-desc a { color: var(--blue); }
 
-    /* ── Onboarding prompts card ── */
+    /* ── Onboarding card (shown only when companion is verified live) ── */
     .onboarding-card {
       display: none;
       text-align: left;
@@ -275,6 +266,8 @@
       color: var(--text-dim);
       margin-bottom: 10px;
     }
+
+    /* "Try asking" prompts — styled as info chips, not clickable */
     .ob-prompts {
       list-style: none;
       display: flex;
@@ -288,16 +281,19 @@
       border-radius: 9px;
       padding: 10px 14px;
       font-size: 0.875rem;
-      color: var(--text);
-      transition: border-color 0.15s;
+      color: var(--text-dim);
+      cursor: default;
+      user-select: none;
     }
-    .ob-prompts li:hover { border-color: rgba(0,74,173,0.5); }
-    .ob-prompts li::before { content: '› '; color: var(--gold); font-weight: 700; }
+    .ob-prompts li::before { content: '› '; color: var(--blue); font-weight: 700; }
+
     .btn-chat {
+      display: block;
+      text-align: center;
       width: 100%;
       padding: 13px 24px;
-      background: linear-gradient(135deg, var(--gold) 0%, #b8901f 100%);
-      color: #000;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dim) 100%);
+      color: #fff;
       border: none;
       border-radius: 10px;
       font-family: inherit;
@@ -305,10 +301,11 @@
       font-weight: 700;
       cursor: pointer;
       letter-spacing: -0.01em;
-      transition: opacity 0.15s;
-      box-shadow: 0 4px 20px var(--gold-glow);
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 4px 20px var(--blue-glow);
     }
-    .btn-chat:hover { opacity: 0.88; }
+    .btn-chat:hover { opacity: 0.88; transform: translateY(-1px); }
 
     /* ── Custom industry reveal ── */
     .other-industry-wrap {
@@ -340,18 +337,17 @@
 
 <div class="wrap">
 
-  <!-- Logo -->
+  <!-- Logo — tagline only (no redundant "EBFC AI" text; logo icon already identifies the brand) -->
   <div class="logo-row">
     <div class="logo-hex">🏗️</div>
     <div class="logo-text">
-      <h1>EBFC AI</h1>
       <p>Your AI companion. Your context. Your memory.</p>
     </div>
   </div>
 
   <!-- Hero -->
   <h2 class="hero-title">Your own AI companion,<br><span>ready in minutes.</span></h2>
-  <p class="hero-sub">Tell us a little about yourself. We'll pre-load your AI with knowledge for your role, set up your workspace, and send you a link to start.</p>
+  <p class="hero-sub">Tell us about your role and how you want to work. We'll pre-load your AI with knowledge for <span id="hero-domain">construction</span> and send you a personal link to start.</p>
 
   <!-- Error/success banners -->
   <div class="banner" id="banner"></div>
@@ -369,8 +365,9 @@
           <input type="text" id="name" name="name" placeholder="Jane Smith" required autocomplete="name"/>
         </div>
         <div class="field">
-          <label for="email">Preferred Email <span class="req">*</span></label>
-          <input type="email" id="email" name="email" placeholder="jane@company.com" required autocomplete="email"/>
+          <label for="email">Google / Gmail Address <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="jane@gmail.com" required autocomplete="email"/>
+          <p class="field-hint">Must be the Gmail address associated with your Google account</p>
         </div>
       </div>
 
@@ -394,7 +391,7 @@
         </div>
       </div>
 
-      <!-- Custom industry (shown when 'Other' is selected) -->
+      <!-- Custom industry (shown when 'Other / General' is selected) -->
       <div class="other-industry-wrap" id="otherIndustryWrap">
         <div class="field" style="margin-bottom:0">
           <label for="custom_industry">Tell us your field — we'll customize your experience</label>
@@ -471,26 +468,50 @@
 
   </form>
 
-  <!-- Success state (shown after form) -->
+  <!-- ── Success: 3-step confirmation (shown after submit) ── -->
   <div class="card success-card" id="successCard">
     <div class="success-icon">🎉</div>
-    <h2>You're in the queue!</h2>
-    <p id="successMsg">Your AI companion is being provisioned right now. We'll email you the link once it's ready.</p>
-    <div class="eta" id="etaBadge">Estimated wait: ~5 minutes</div>
-    <div class="progress-wrap">
-      <div class="progress-fill" id="progressFill"></div>
+    <h2>You're in!</h2>
+    <p class="success-msg" id="successMsg">Your request is confirmed. Here's what happens next:</p>
+
+    <div class="steps">
+      <!-- Step 1: always done after submit -->
+      <div class="step done">
+        <div class="step-icon">✅</div>
+        <div class="step-body">
+          <div class="step-title">Step 1: Intake Submitted</div>
+          <div class="step-desc" id="step1Desc">Confirmation sent to your email.</div>
+        </div>
+      </div>
+
+      <!-- Step 2: in progress -->
+      <div class="step active">
+        <div class="step-icon">⚙️</div>
+        <div class="step-body">
+          <div class="step-title">Step 2: We're Configuring Your Companion</div>
+          <div class="step-desc">We'll set up your AI companion with your preferences and context. You'll receive an email when it's ready.</div>
+        </div>
+      </div>
+
+      <!-- Step 3: pending until companion is live -->
+      <div class="step pending">
+        <div class="step-icon">💬</div>
+        <div class="step-body">
+          <div class="step-title">Step 3: Start Chatting</div>
+          <div class="step-desc" id="step3Desc">Your personal companion will be live at <strong id="webchatUrl">your-name.ebfc.ai</strong> — we'll email you the link.</div>
+        </div>
+      </div>
     </div>
-    <div class="countdown" id="countdownDisplay">Time remaining: <strong id="countdownTimer">5:00</strong></div>
   </div>
 
-  <!-- Onboarding prompts (shown when countdown completes) -->
+  <!-- ── Onboarding card: only shown when companion is verified live ── -->
   <div class="card onboarding-card" id="onboardingCard">
     <div class="ob-icon">✨</div>
     <h3 id="obTitle">Your companion is ready!</h3>
-    <p class="ob-sub" id="obSub">Check your email for your chat link. Here's a preview of what you can do:</p>
-    <div class="ob-section-label" id="obLabel">Try asking your companion:</div>
+    <p class="ob-sub" id="obSub">Your personal workspace is live. Open it and start chatting:</p>
+    <div class="ob-section-label" id="obLabel">Inspiration — things you can ask:</div>
     <ul class="ob-prompts" id="obPrompts"></ul>
-    <button class="btn-chat" onclick="window.location.reload()">Set up another companion →</button>
+    <a class="btn-chat" id="chatLink" href="#" target="_blank">Open your companion →</a>
   </div>
 
 </div>
@@ -500,16 +521,28 @@
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  // ── API endpoint ────────────────────────────────────────────────────────────
+  // ── API endpoint ──────────────────────────────────────────────────────────
   const API_URL = 'https://ebfc-brain-ingest.vercel.app/api/provision';
 
-  const form          = document.getElementById('intakeForm');
-  const submitBtn     = document.getElementById('submitBtn');
-  const banner        = document.getElementById('banner');
-  const successCard   = document.getElementById('successCard');
+  const form           = document.getElementById('intakeForm');
+  const submitBtn      = document.getElementById('submitBtn');
+  const banner         = document.getElementById('banner');
+  const successCard    = document.getElementById('successCard');
   const onboardingCard = document.getElementById('onboardingCard');
 
-  // ── Industry-specific onboarding prompts ────────────────────────────────────
+  // ── Domain labels for hero subtitle ──────────────────────────────────────
+  const DOMAIN_LABELS = {
+    construction: 'construction',
+    engineering:  'engineering',
+    technology:   'technology',
+    business:     'business',
+    education:    'education',
+    creative:     'creative industries',
+    science:      'science & research',
+    general:      'your industry',
+  };
+
+  // ── Industry-specific "Try asking" prompts ────────────────────────────────
   const INDUSTRY_PROMPTS = {
     construction: [
       'What do I know about pull planning?',
@@ -523,7 +556,7 @@
       'Find anything about code compliance',
       'What is the latest in my brain?',
     ],
-    tech: [
+    technology: [
       'What do I know about our sprint velocity?',
       'What did we discuss about the deployment pipeline?',
       'Find anything about technical debt',
@@ -553,7 +586,7 @@
       'Find anything about hypothesis testing',
       'What is the latest in my brain?',
     ],
-    other: [
+    general: [
       'What do I know about my top priorities?',
       'What did we discuss about recent decisions?',
       'Find anything about my key goals',
@@ -561,9 +594,20 @@
     ],
   };
 
-  // ── Other industry reveal ────────────────────────────────────────────────────
-  const domainSelect       = document.getElementById('domain');
-  const otherIndustryWrap  = document.getElementById('otherIndustryWrap');
+  // ── Dynamic hero subtitle ─────────────────────────────────────────────────
+  const domainSelect      = document.getElementById('domain');
+  const heroDomain        = document.getElementById('hero-domain');
+  const otherIndustryWrap = document.getElementById('otherIndustryWrap');
+
+  function updateHeroDomain() {
+    const val      = domainSelect.value;
+    const customEl = document.getElementById('custom_industry');
+    if (val === 'general' && customEl && customEl.value.trim()) {
+      heroDomain.textContent = customEl.value.trim();
+    } else {
+      heroDomain.textContent = DOMAIN_LABELS[val] || 'your industry';
+    }
+  }
 
   domainSelect.addEventListener('change', () => {
     if (domainSelect.value === 'general') {
@@ -572,12 +616,18 @@
       otherIndustryWrap.classList.remove('visible');
       document.getElementById('custom_industry').value = '';
     }
+    updateHeroDomain();
   });
 
-  // ── Banner helpers ───────────────────────────────────────────────────────────
+  document.getElementById('custom_industry').addEventListener('input', updateHeroDomain);
+
+  // Initialize on load
+  updateHeroDomain();
+
+  // ── Banner helpers ────────────────────────────────────────────────────────
   function showBanner(type, title, body) {
-    banner.className = `banner ${type}`;
-    banner.innerHTML = `<strong>${title}</strong>${body || ''}`;
+    banner.className = 'banner ' + type;
+    banner.innerHTML = '<strong>' + title + '</strong>' + (body || '');
     banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -586,76 +636,54 @@
     banner.innerHTML = '';
   }
 
-  // ── Countdown + progress bar ─────────────────────────────────────────────────
-  function startCountdown(minutes, aiName, industry, customIndustry) {
-    const totalSeconds = minutes * 60;
-    let remaining = totalSeconds;
-
-    const progressFill    = document.getElementById('progressFill');
-    const countdownTimer  = document.getElementById('countdownTimer');
-    const countdownDisplay = document.getElementById('countdownDisplay');
-
-    function tick() {
-      const pct = ((totalSeconds - remaining) / totalSeconds) * 100;
-      progressFill.style.width = pct + '%';
-
-      const m = Math.floor(remaining / 60);
-      const s = remaining % 60;
-      countdownTimer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-
-      if (remaining <= 0) {
-        progressFill.style.width = '100%';
-        countdownDisplay.innerHTML = 'Provisioning complete! <strong>✓</strong>';
-        showOnboarding(aiName, industry, customIndustry);
-        return;
-      }
-      remaining--;
-      setTimeout(tick, 1000);
-    }
-
-    tick();
+  // ── Derive webchat subdomain from email ───────────────────────────────────
+  function deriveSubdomain(data) {
+    // Prefer API-provided subdomain; fall back to sanitized email local part
+    const base = data.email.split('@')[0].toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    return base;
   }
 
-  // ── Onboarding prompts overlay ───────────────────────────────────────────────
-  function showOnboarding(aiName, industry, customIndustry) {
+  // ── Show onboarding (only called when companion is verified live) ─────────
+  function showOnboarding(aiName, industry, customIndustry, webchatUrl) {
     const name = aiName || 'your companion';
     let prompts;
-    if (industry === 'other' && customIndustry && customIndustry.trim()) {
+    if (industry === 'general' && customIndustry && customIndustry.trim()) {
       const field = customIndustry.trim();
       prompts = [
-        `What do I know about ${field}?`,
-        `What did we discuss about ${field} challenges?`,
-        `Find anything about ${field} best practices`,
+        'What do I know about ' + field + '?',
+        'What did we discuss about ' + field + ' challenges?',
+        'Find anything about ' + field + ' best practices',
         'What is the latest in my brain?',
       ];
     } else {
-      prompts = INDUSTRY_PROMPTS[industry] || INDUSTRY_PROMPTS.other;
+      prompts = INDUSTRY_PROMPTS[industry] || INDUSTRY_PROMPTS.general;
     }
 
-    document.getElementById('obTitle').textContent = `${name} is ready!`;
-    document.getElementById('obLabel').textContent = `Try asking ${name}:`;
+    document.getElementById('obTitle').textContent = name + ' is ready!';
+    document.getElementById('obLabel').textContent = 'Inspiration — things you can ask ' + name + ':';
+    document.getElementById('chatLink').href        = webchatUrl || '#';
+    document.getElementById('chatLink').textContent = 'Open ' + name + ' →';
 
     const list = document.getElementById('obPrompts');
     list.innerHTML = '';
-    prompts.forEach(p => {
+    prompts.forEach(function(p) {
       const li = document.createElement('li');
       li.textContent = p;
       list.appendChild(li);
     });
 
-    successCard.style.display = 'none';
+    successCard.style.display  = 'none';
     onboardingCard.style.display = 'block';
     onboardingCard.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ── Form submit ──────────────────────────────────────────────────────────────
-  form.addEventListener('submit', async (e) => {
+  // ── Form submit ───────────────────────────────────────────────────────────
+  form.addEventListener('submit', async function(e) {
     e.preventDefault();
     clearBanner();
 
     const data = Object.fromEntries(new FormData(form).entries());
-
-    Object.keys(data).forEach(k => {
+    Object.keys(data).forEach(function(k) {
       if (typeof data[k] === 'string') data[k] = data[k].trim();
     });
 
@@ -677,7 +705,7 @@
       const json = await res.json();
 
       if (res.status === 409) {
-        showBanner('error', 'Already registered!', ` ${json.message}`);
+        showBanner('error', 'Already registered!', ' ' + json.message);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Set Up My AI Companion →';
         return;
@@ -685,29 +713,36 @@
 
       if (!json.ok) {
         const msg = json.error || (json.errors && json.errors.join(', ')) || 'Unknown error';
-        showBanner('error', 'Something went wrong', ` ${msg}`);
+        showBanner('error', 'Something went wrong', ' ' + msg);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Set Up My AI Companion →';
         return;
       }
 
-      // Success — show queue screen then start countdown
-      const estMinutes = json.est_minutes || 5;
+      // Success — show 3-step confirmation
+      const subdomain  = json.subdomain || deriveSubdomain(data);
+      const webchatUrl = 'https://' + subdomain + '.ebfc.ai';
+
       form.style.display = 'none';
       clearBanner();
-      document.getElementById('successMsg').textContent =
-        json.message || `Your AI companion is being set up. We'll email you when it's ready.`;
-      document.getElementById('etaBadge').textContent =
-        `Estimated wait: ~${estMinutes} minute${estMinutes !== 1 ? 's' : ''}`;
-      document.getElementById('countdownTimer').textContent =
-        `${estMinutes}:00`;
+
+      document.getElementById('step1Desc').textContent =
+        'Confirmation sent to ' + data.email + '.';
+      document.getElementById('step3Desc').innerHTML =
+        'Your personal companion will be live at <strong><a href="' + webchatUrl +
+        '" target="_blank" style="color:inherit">' + subdomain + '.ebfc.ai</a></strong>' +
+        ' — we\'ll email you when it\'s ready.';
+
       successCard.style.display = 'block';
       successCard.scrollIntoView({ behavior: 'smooth' });
 
-      startCountdown(estMinutes, data.ai_name, data.domain, data.custom_industry);
+      // Only show the "companion ready" onboarding if the API confirms it's live
+      if (json.ready) {
+        showOnboarding(data.ai_name, data.domain, data.custom_industry, webchatUrl);
+      }
 
     } catch (err) {
-      showBanner('error', 'Network error', ` Could not reach the server. Please try again.`);
+      showBanner('error', 'Network error', ' Could not reach the server. Please try again.');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Set Up My AI Companion →';
     }
